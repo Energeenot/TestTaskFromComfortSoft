@@ -3,7 +3,9 @@ package Energeenot.TestTaskFromComfortSoft.controller;
 import Energeenot.TestTaskFromComfortSoft.dto.ErrorResponse;
 import Energeenot.TestTaskFromComfortSoft.dto.NthMaxRequest;
 import Energeenot.TestTaskFromComfortSoft.service.SearcherService;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,6 +16,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+@OpenAPIDefinition(
+        info = @Info(
+                title = "API для поиска N-ого максимального числа",
+                description = "Этот API позволяет загрузить файл в формате xlsx, содержащий целые числа, и найти N-ое максимальное число в этом файле. " +
+                        "Метод поддерживает валидацию входных данных и предоставляет информативные ошибки в случае неверного ввода."
+        )
+)
 
 @RestController
 @RequestMapping("/search")
