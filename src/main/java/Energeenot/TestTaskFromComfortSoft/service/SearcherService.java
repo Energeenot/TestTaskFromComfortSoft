@@ -1,6 +1,5 @@
 package Energeenot.TestTaskFromComfortSoft.service;
 
-import Energeenot.TestTaskFromComfortSoft.dto.NthMaxRequest;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
@@ -18,9 +17,7 @@ public class SearcherService {
 
     private static final Logger log = LoggerFactory.getLogger(SearcherService.class);
 
-    public int findNthMaxNumber(NthMaxRequest request) {
-        int n = request.getN();
-        String filepath = request.getFilepath();
+    public int findNthMaxNumber(String filepath, int n) {
 
         log.info("Попытка открыть файл и считать значения ячеек");
         try (FileInputStream fis = new FileInputStream(filepath);
