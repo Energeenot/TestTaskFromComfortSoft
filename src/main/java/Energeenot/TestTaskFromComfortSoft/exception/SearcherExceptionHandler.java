@@ -1,17 +1,21 @@
 package Energeenot.TestTaskFromComfortSoft.exception;
 
 import Energeenot.TestTaskFromComfortSoft.dto.ErrorResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class SearcherExceptionHandler {
@@ -30,12 +34,28 @@ public class SearcherExceptionHandler {
         } else return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Произошла ошибка сервера: " + e.getMessage()));
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Map<String, String>> handleMissingRequestParameters(HttpServletRequest request) {
         Map<String, String> errors = new HashMap<>();
-        for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
-            errors.put(fieldError.getField(), fieldError.getDefaultMessage());
+
+        List<String> requiredParams = List.of("filepath", "n");
+        for (String param : requiredParams) {
+            if (request.getParameter(param) == null) {
+                errors.put(param, "Параметр '" + param + "' обязателен");
+            }
         }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, String>> handleConstraintViolationException(ConstraintViolationException e) {
+        Map<String, String> errors = e.getConstraintViolations().stream()
+                .collect(Collectors.toMap(
+                        v -> v.getPropertyPath().toString(),
+                        ConstraintViolation::getMessage,
+                        (existing, replacement) -> existing
+                ));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 }
