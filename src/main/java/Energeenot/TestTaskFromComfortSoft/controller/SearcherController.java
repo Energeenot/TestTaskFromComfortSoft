@@ -1,21 +1,26 @@
 package Energeenot.TestTaskFromComfortSoft.controller;
 
 import Energeenot.TestTaskFromComfortSoft.dto.ErrorResponse;
-import Energeenot.TestTaskFromComfortSoft.dto.NthMaxRequest;
 import Energeenot.TestTaskFromComfortSoft.service.SearcherService;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @OpenAPIDefinition(
         info = @Info(
@@ -27,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/search")
+@Validated
 public class SearcherController {
 
     private final SearcherService searcherService;
@@ -74,8 +80,9 @@ public class SearcherController {
                                                                         "error": "Произошла ошибка сервера"
                                     }""")))
     })
-    public int getNthMax(@RequestBody @Valid NthMaxRequest request) {
-        log.info("Запрос на поиск {} числа из файла с путём {}", request.getN(), request.getFilepath());
-        return searcherService.findNthMaxNumber(request);
+    public int getNthMax(@RequestParam  @NotBlank(message = "Путь к файлу не должен быть пустым") @Parameter(description = "Путь к файлу", required = true, example = "C:/data/numbers.xlsx")String filepath,
+                         @RequestParam  @Min(value = 1, message = "N должно быть >= 1") @Parameter(description = "Число N для поиска максимума", required = true, example = "3") int n) {
+        log.info("Запрос на поиск {} числа из файла с путём {}", n, filepath);
+        return searcherService.findNthMaxNumber(filepath, n);
     }
 }
